@@ -1,0 +1,20 @@
+Building the project
+
+Configure cmake(advcmp/build directory will be created)
+cmake-S . -G Ninja -B build
+
+Build
+cmake--build build
+
+Testing the project
+
+Generate IR from the source.
+clang -O0 -S -emit-llvm -Xclang -disable-O0-optnone -Xclang -disable-llvm-passes
+-fno-discard-value-names test.c -o test.ll
+
+Run ‘mem2reg’ pass.
+opt -S -passes='mem2reg'./test.ll -o input.ll
+
+Call your pass from opt.
+opt -S -load-pass-plugin build/lib/libSimpleSCCP.so -passes='print<simple-sccp>'
+./input.ll -disable-output 2> test.out
